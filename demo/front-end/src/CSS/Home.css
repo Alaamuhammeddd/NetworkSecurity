@@ -1,0 +1,13 @@
+.a-block {
+  height: 60vh;
+  background: url("../images/istockphoto-1285472895-612x612.jpg") no-repeat
+    center center/cover;
+  width: 90%;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  margin-left: 60px;
+}
+.carousel-caption.caption {
+  bottom: 50%; /* adjust this value to move the captions higher or lower */
+  text-align: left;
+}
