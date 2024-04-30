@@ -6,39 +6,33 @@ function AcceptRejectRegistration() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log(token);
     axios
-      .get("http://localhost:4000/admino/new-accounts", {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include token in the request headers
-        },
-      })
+      .get(
+        "http://localhost:4000/admino/new-accounts",
+
+        {
+          withCredentials: true, // This ensures cookies are sent with requests
+        }
+      )
       .then((response) => {
-        setAccounts(response.user.data);
-        console.log(response.data);
+        setAccounts(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching new accounts:", error); // Log the error object
+        // Log the error object
         setError(error);
       });
   }, []);
 
   const acceptAccount = (user_id) => {
-    const token = localStorage.getItem("token");
     axios
-      .put(`http://localhost:4000/admino/accept-account/${user_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include token in the request headers
-        },
+      .put(`http://localhost:4000/admino/accept-account/${user_id}`, null, {
+        withCredentials: true, // This ensures cookies are sent with requests
       })
       .then((response) => {
-        // Reload the list of accounts
+        console.log(response);
         axios
           .get("http://localhost:4000/admino/new-accounts", {
-            headers: {
-              Authorization: `Bearer ${token}`, // Include token in the request headers
-            },
+            withCredentials: true,
           })
           .then((response) => {
             setAccounts(response.data);
@@ -49,24 +43,21 @@ function AcceptRejectRegistration() {
       })
       .catch((error) => {
         setError(error);
+        console.error(error);
       });
   };
 
   const rejectAccount = (user_id) => {
     const token = localStorage.getItem("token");
     axios
-      .put(`http://localhost:4000/admino/reject-account/${user_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include token in the request headers
-        },
+      .put(`http://localhost:4000/admino/reject-account/${user_id}`, null, {
+        withCredentials: true, // This ensures cookies are sent with requests
       })
       .then((response) => {
         // Reload the list of accounts
         axios
           .get("http://localhost:4000/admino/new-accounts", {
-            headers: {
-              Authorization: `Bearer ${token}`, // Include token in the request headers
-            },
+            withCredentials: true, // This ensures cookies are sent with requests
           })
           .then((response) => {
             setAccounts(response.data);
@@ -86,58 +77,62 @@ function AcceptRejectRegistration() {
     return (
       <div>
         <h1>New Accounts</h1>
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            border: "1px solid black",
-          }}
-        >
-          <thead>
-            <tr style={{ background: "lightgrey" }}>
-              <th style={{ border: "1px solid black", padding: "10px" }}>
-                User Name
-              </th>
-              <th style={{ border: "1px solid black", padding: "10px" }}>
-                Email
-              </th>
-              <th style={{ border: "1px solid black", padding: "10px" }}>
-                Accept
-              </th>
-              <th style={{ border: "1px solid black", padding: "10px" }}>
-                Reject
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map((account) => (
-              <tr key={account.user_id}>
-                <td style={{ border: "1px solid black", padding: "10px" }}>
-                  {account.user_name}
-                </td>
-                <td style={{ border: "1px solid black", padding: "10px" }}>
-                  {account.email}
-                </td>
-                <td style={{ border: "1px solid black", padding: "10px" }}>
-                  <button
-                    className="btn btn-success"
-                    onClick={() => acceptAccount(account.user_id)}
-                  >
-                    Accept
-                  </button>
-                </td>
-                <td style={{ border: "1px solid black", padding: "10px" }}>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => rejectAccount(account.user_id)}
-                  >
-                    Reject
-                  </button>
-                </td>
+        {accounts.length === 0 ? (
+          <div>No new accounts</div>
+        ) : (
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              border: "1px solid black",
+            }}
+          >
+            <thead>
+              <tr style={{ background: "lightgrey" }}>
+                <th style={{ border: "1px solid black", padding: "10px" }}>
+                  User Name
+                </th>
+                <th style={{ border: "1px solid black", padding: "10px" }}>
+                  Email
+                </th>
+                <th style={{ border: "1px solid black", padding: "10px" }}>
+                  Accept
+                </th>
+                <th style={{ border: "1px solid black", padding: "10px" }}>
+                  Reject
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {accounts.map((account) => (
+                <tr key={account.user_id}>
+                  <td style={{ border: "1px solid black", padding: "10px" }}>
+                    {account.user_name}
+                  </td>
+                  <td style={{ border: "1px solid black", padding: "10px" }}>
+                    {account.email}
+                  </td>
+                  <td style={{ border: "1px solid black", padding: "10px" }}>
+                    <button
+                      className="btn btn-success"
+                      onClick={() => acceptAccount(account.user_id)}
+                    >
+                      Accept
+                    </button>
+                  </td>
+                  <td style={{ border: "1px solid black", padding: "10px" }}>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => rejectAccount(account.user_id)}
+                    >
+                      Reject
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     );
   }

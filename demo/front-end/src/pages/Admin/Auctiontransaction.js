@@ -6,8 +6,6 @@ import axios from "axios";
 import { getAuthUser } from "../../helper/storage";
 
 const Auctiontransaction = () => {
- 
-  
   const [Auction, setAuction] = useState({
     loading: true,
     results: [],
@@ -18,15 +16,16 @@ const Auctiontransaction = () => {
   useEffect(() => {
     setAuction({ ...Auction, loading: true });
     axios
-      .get(`http://localhost:4000/auctions/`
-    //   , {
-    //     headers: {
-    //       token: auth.token,
-    //     },
-    //   }
-      )
+      .get(`http://localhost:4000/auctions/`, {
+        withCredentials: true, // This ensures cookies are sent with requests
+      })
       .then((resp) => {
-        setAuction({ ...Auction, results: resp.data, loading: false, err: null });
+        setAuction({
+          ...Auction,
+          results: resp.data,
+          loading: false,
+          err: null,
+        });
       })
       .catch((err) => {
         setAuction({
@@ -37,13 +36,10 @@ const Auctiontransaction = () => {
       });
   }, [Auction.reload]);
 
-  
-
   return (
     <div className="manage-Auctions p-5">
       <div className="header d-flex justify-content-between mb-5">
         <h3 className="text-center ">View Transactions </h3>
-       
       </div>
 
       <Table striped bordered hover>
@@ -58,13 +54,11 @@ const Auctiontransaction = () => {
             <th> category name</th>
             <th> Auction status</th>
             <th> Action</th>
-
-            
           </tr>
         </thead>
         <tbody>
           {Auction.results.map((transa) => (
-            <tr key={transa.tina}>
+            <tr key={transa.auction_id}>
               <td>{transa.auction_id}</td>
               <td>
                 <img
@@ -81,13 +75,12 @@ const Auctiontransaction = () => {
               <td>{transa.auction_status}</td>
 
               <td>
-               
                 <Link
                   to={"" + transa.auction_id}
-                  className="btn btn-sm btn-primary mx-2">
+                  className="btn btn-sm btn-primary mx-2"
+                >
                   View Transaction
                 </Link>
-               
               </td>
             </tr>
           ))}

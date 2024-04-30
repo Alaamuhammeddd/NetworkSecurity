@@ -121,9 +121,9 @@ router.post(
         // Generate JWT token
         const token = jwt.sign(
           {
-            userId: user[0].user_id,
+            user_id: user[0].user_id,
             email: user[0].email,
-            userType: user[0].type,
+            type: user[0].type,
           },
           process.env.JWT_SECRET, // Replace this with your secret key
           { expiresIn: "1h" } // Token expiration time

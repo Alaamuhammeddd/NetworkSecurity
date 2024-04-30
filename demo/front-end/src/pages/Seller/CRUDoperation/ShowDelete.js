@@ -21,9 +21,7 @@ const ShowDelete = () => {
     setAuction({ ...Auction, loading: true });
     axios
       .get(`http://localhost:4000/auctions/${user_id}`, {
-        headers: {
-          token: auth.token,
-        },
+        withCredentials: true,
       })
       .then((resp) => {
         setAuction({
@@ -44,7 +42,9 @@ const ShowDelete = () => {
 
   const deleteAuction = (auction_id) => {
     axios
-      .delete(`http://localhost:4000/auctions/${auction_id}`)
+      .delete(`http://localhost:4000/auctions/${auction_id}`, {
+        withCredentials: true,
+      })
       .then((resp) => {
         setAuction({ ...Auction, reload: Auction.reload + 1 });
       })

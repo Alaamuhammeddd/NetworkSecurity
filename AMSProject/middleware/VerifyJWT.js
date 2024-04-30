@@ -19,10 +19,11 @@ const VerifyJWT = (req, res, next) => {
   });
 
   try {
-    const decoded = jwt.verify(token, secretKey); // Replace 'your_secret_key' with your actual secret key
+    const decoded = jwt.verify(token, secretKey);
     req.user_email = decoded.email;
-    req.userId = decoded.user_id;
-    req.userType = decoded.type;
+    req.user_id = decoded.user_id;
+    req.type = decoded.type;
+    // console.log(req);
     next();
   } catch (error) {
     console.log(error);

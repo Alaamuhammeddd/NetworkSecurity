@@ -36,10 +36,17 @@ const Login = () => {
     e.preventDefault();
     setLogin({ ...login, loading: true, err: [] });
     axios
-      .post("http://localhost:4000/auth/login", {
-        email: login.email,
-        password: login.password,
-      })
+      .post(
+        "http://localhost:4000/auth/login",
+
+        {
+          email: login.email,
+          password: login.password,
+        },
+        {
+          withCredentials: true, // This ensures cookies are sent with requests
+        }
+      )
       .then((resp) => {
         setLogin({ ...login, loading: false, err: [] });
         setAuthUser(resp.data);

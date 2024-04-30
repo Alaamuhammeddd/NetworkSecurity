@@ -19,8 +19,6 @@ router.get("/new-accounts", VerifyJWT, admin, async (req, res) => {
     const newAccounts = await query(
       "SELECT * FROM users WHERE account_status  = 'pending'"
     );
-    delete newAccounts[0].password;
-    // Send the list of new accounts as response
     res.status(200).json(newAccounts);
   } catch (err) {
     console.log(err);
@@ -29,54 +27,41 @@ router.get("/new-accounts", VerifyJWT, admin, async (req, res) => {
 });
 
 // Accept a new account
-router.put(
-  "/accept-account/:user_id",
-  authorized,
-  VerifyJWT,
-  admin,
-  async (req, res) => {
-    try {
-      // Update the status of the request to 'accepted'
-      const query = util.promisify(conn.query).bind(conn);
-      await query(
-        "UPDATE users SET account_status = 'accepted' WHERE user_id = ?",
-        [req.params.user_id]
-      );
-      // Send success response
-      res.status(200).json({ msg: "Account accepted successfully" });
-    } catch (err) {
-      res.status(500).json(err);
-    }
+router.put("/accept-account/:user_id", VerifyJWT, admin, async (req, res) => {
+  try {
+    // Update the status of the request to 'accepted'
+    const query = util.promisify(conn.query).bind(conn);
+    await query(
+      "UPDATE users SET account_status = 'accepted' WHERE user_id = ?",
+      [req.params.user_id]
+    );
+    // Send success response
+    res.status(200).json({ msg: "Account accepted successfully" });
+  } catch (err) {
+    res.status(500).json(err);
   }
-);
+});
 
 // Reject a new account
-router.put(
-  "/reject-account/:user_id",
-  authorized,
-  VerifyJWT,
-  admin,
-  async (req, res) => {
-    try {
-      // Update the status of the request to 'rejected'
-      const query = util.promisify(conn.query).bind(conn);
-      await query(
-        "UPDATE users SET account_status = 'rejected' WHERE user_id = ?",
-        [req.params.user_id]
-      );
+router.put("/reject-account/:user_id", VerifyJWT, admin, async (req, res) => {
+  try {
+    // Update the status of the request to 'rejected'
+    const query = util.promisify(conn.query).bind(conn);
+    await query(
+      "UPDATE users SET account_status = 'rejected' WHERE user_id = ?",
+      [req.params.user_id]
+    );
 
-      // Send success response
-      res.status(200).json({ msg: "Account rejected successfully" });
-    } catch (err) {
-      res.status(500).json(err);
-    }
+    // Send success response
+    res.status(200).json({ msg: "Account rejected successfully" });
+  } catch (err) {
+    res.status(500).json(err);
   }
-);
+});
 
 //ADMIN [UPDATE STATUS]
 router.put(
   "/:user_id/status",
-  authorized,
   VerifyJWT,
   admin,
 
@@ -120,20 +105,14 @@ router.put(
   }
 );
 
-router.get(
-  "/:auction_id/transaction",
-  authorized,
-  VerifyJWT,
-  admin,
-  async (req, res) => {
-    const query = util.promisify(conn.query).bind(conn);
-    const allTransactions = await query(
-      "SELECT * FROM transaction WHERE auction_id=? AND winnig_bid = (SELECT MAX(winnig_bid) FROM transaction WHERE auction_id=?)",
-      [req.params.auction_id, req.params.auction_id]
-    );
+router.get("/:auction_id/transaction", VerifyJWT, admin, async (req, res) => {
+  const query = util.promisify(conn.query).bind(conn);
+  const allTransactions = await query(
+    "SELECT * FROM transaction WHERE auction_id=? AND winnig_bid = (SELECT MAX(winnig_bid) FROM transaction WHERE auction_id=?)",
+    [req.params.auction_id, req.params.auction_id]
+  );
 
-    res.status(200).json(allTransactions);
-  }
-);
+  res.status(200).json(allTransactions);
+});
 
 module.exports = router;
