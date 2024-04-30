@@ -15,7 +15,9 @@ const Auctionhistory = () => {
   useEffect(() => {
     setAuctionhistory({ ...AuctionHistory, loading: true });
     axios
-      .get(`http://localhost:4000/auctions/${id}/winner`) //bdl el 21 nhot auth.id
+      .get(`http://localhost:4000/auctions/${id}/winner`, {
+        withCredentials: true,
+      }) //bdl el 21 nhot auth.id
       .then((resp) => {
         setAuctionhistory({
           ...AuctionHistory,

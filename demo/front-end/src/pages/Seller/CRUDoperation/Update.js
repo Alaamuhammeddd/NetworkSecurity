@@ -3,18 +3,18 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import axios from "axios";
-import { getAuthUser } from '../../../helper/storage'; 
+import { getAuthUser } from "../../../helper/storage";
 import { useParams } from "react-router-dom";
 
 const Update = () => {
   let { id } = useParams();
-  const auth = getAuthUser(); 
+  const auth = getAuthUser();
   const [auctions, setauctions] = useState({
     auction_name: "",
     description: "",
-    start_date : "",
-    end_date:"",
-    category_name:"",
+    start_date: "",
+    end_date: "",
+    category_name: "",
     image_url: null,
     err: "",
     loading: false,
@@ -37,12 +37,19 @@ const Update = () => {
     if (image_url.current.files && image_url.current.files[0]) {
       formData.append("image_url", image_url.current.files[0]);
     }
-    axios.put(`http://localhost:4000/auctions/${id}` , formData , {
-      headers: {
-         token: auth[0].token,
-         "Content-Type":"multipart/form-data",
-       },
-      }
+    console.log(formData);
+    axios
+      .put(
+        `http://localhost:4000/auctions/${id}`,
+        {
+          withCredentials: true,
+        },
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       )
       .then((resp) => {
         setauctions({
@@ -52,14 +59,14 @@ const Update = () => {
           reload: auctions.reload + 1,
         });
       })
-      .catch((err) => {
-        
-      });
+      .catch((err) => {});
   };
 
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/auctions/koky/${id}`)
+      .get(`http://localhost:4000/auctions/${id}`, {
+        withCredentials: true,
+      })
       .then((resp) => {
         setauctions({
           ...auctions,
@@ -70,10 +77,8 @@ const Update = () => {
           category_name: resp.data[0].category_name,
           image_url: resp.data[0].image_url,
         });
-
       })
-      .catch((err) => {
-      });
+      .catch((err) => {});
   }, [auctions.reload]);
 
   return (
@@ -110,7 +115,9 @@ const Update = () => {
             type="text"
             placeholder="auction Name"
             value={auctions.auction_name}
-            onChange={(e) => setauctions({ ...auctions, auction_name: e.target.value })}
+            onChange={(e) =>
+              setauctions({ ...auctions, auction_name: e.target.value })
+            }
           />
         </Form.Group>
 
@@ -122,13 +129,16 @@ const Update = () => {
             onChange={(e) =>
               setauctions({ ...auctions, description: e.target.value })
             }
-            rows={2}></textarea>
+            rows={2}
+          ></textarea>
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Control
             value={auctions.start_date}
-            onChange={(e) => setauctions({ ...auctions, start_date: e.target.value })}
+            onChange={(e) =>
+              setauctions({ ...auctions, start_date: e.target.value })
+            }
             type="text"
             required
             placeholder="Start date"
@@ -138,24 +148,26 @@ const Update = () => {
         <Form.Group className="mb-3">
           <Form.Control
             value={auctions.end_date}
-            onChange={(e) => setauctions({ ...auctions, end_date: e.target.value })}
+            onChange={(e) =>
+              setauctions({ ...auctions, end_date: e.target.value })
+            }
             type="text"
             required
             placeholder="End date"
           />
         </Form.Group>
 
-
         <Form.Group className="mb-3">
           <Form.Control
             value={auctions.category_name}
-            onChange={(e) => setauctions({ ...auctions, category_name: e.target.value })}
+            onChange={(e) =>
+              setauctions({ ...auctions, category_name: e.target.value })
+            }
             type="text"
             required
             placeholder="Category Name"
           />
         </Form.Group>
-
 
         <Form.Group className="mb-3">
           <input type="file" className="form-control" ref={image_url} />

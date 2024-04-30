@@ -50,6 +50,7 @@ const Login = () => {
       .then((resp) => {
         setLogin({ ...login, loading: false, err: [] });
         setAuthUser(resp.data);
+        sessionStorage.setItem("authUser", JSON.stringify(resp.data));
         const token = resp.data.token;
         localStorage.setItem("token", token); // Assuming your token is sent as 'token' in response // Store the token in local storage
         navigate("/");

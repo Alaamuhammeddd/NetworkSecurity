@@ -122,76 +122,58 @@ router.post(
 
 //Seller [UPDATE AUCTIONS]
 router.put(
-  "/:auction_id", //prams
+  "/:auction_id",
+  VerifyJWT,
   seller,
   upload.single("image"),
-
-  body("auction_name")
-    .isString()
-    .withMessage("please Entr a Valid auction name")
-    .isLength({ min: 3, max: 20 })
-    .withMessage("name Should be between(3-20)Character"),
-
-  body("description")
-    .isString()
-    .withMessage("please Entr a Valid auction description")
-    .isLength({ min: 8 })
-    .withMessage("name Should be at least 8 Characters"),
-
-  body("category_name")
-    .isString()
-    .withMessage("please Entr a Valid category name")
-    .isLength({ min: 4 })
-    .withMessage("name Should be at least 4 Character"),
-
-  body("start_date").isString(),
-  body("end_date").isString(),
-
   async (req, res) => {
-    //1-Validation for request with ,manual
-    const query = util.promisify(conn.query).bind(conn);
+    // Validation for request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    //2-CHECK IF AUCTION IS EXISTS OR NOT
-
-    const auction = await query(
-      "select * from auctions where auction_id  = ?",
-      [req.params.auction_id]
-    );
-    // kda al auction m4 mwgod asln
+    const query = util.promisify(conn.query).bind(conn);
+    // Check if auction exists
+    const auction = await query("SELECT * FROM auctions WHERE auction_id = ?", [
+      req.params.auction_id,
+    ]);
     if (!auction[0]) {
-      res.status(400).json({
+      return res.status(400).json({
         msg: "Auction NOT Found !",
       });
     }
 
-    //3-PREPARE TO OBJECT
-    const updatedAuction = {
-      auction_name: req.body.auction_name,
-      description: req.body.description,
-      start_date: req.body.start_date,
-      end_date: req.body.end_date,
-      category_name: req.body.category_name,
-      seller_id: req.seller.user_id,
-    };
+    // Prepare updated auction object
+    const updatedAuction = {};
+    if (req.body.auction_name) {
+      updatedAuction.auction_name = req.body.auction_name;
+    }
+    if (req.body.description) {
+      updatedAuction.description = req.body.description;
+    }
+    if (req.body.start_date) {
+      updatedAuction.start_date = req.body.start_date;
+    }
+    if (req.body.end_date) {
+      updatedAuction.end_date = req.body.end_date;
+    }
+    if (req.body.category_name) {
+      updatedAuction.category_name = req.body.category_name;
+    }
     if (req.file) {
-      updatedAuction.image_url = req.file.filename; //bya5od mny al image al gdyda
-      //delete the old image
+      updatedAuction.image_url = req.file.filename;
+      // Delete the old image
       fs.unlinkSync("./upload/" + auction[0].image_url);
     }
 
-    //4- update auction in DB
-
-    await query("update auctions set ? where auction_id = ?", [
+    // Update auction in DB
+    await query("UPDATE auctions SET ? WHERE auction_id = ?", [
       updatedAuction,
       auction[0].auction_id,
     ]);
 
     res.status(200).json({
-      msg: "auction Updated successfully ! ",
+      msg: "Auction updated successfully!",
     });
   }
 );
