@@ -5,7 +5,7 @@ import Alert from "react-bootstrap/Alert";
 import axios from "axios";
 import { Button } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
-
+import { encrypt } from "../middleware/encryption";
 import { setAuthUser } from "../helper/storage";
 import { useNavigate } from "react-router-dom";
 

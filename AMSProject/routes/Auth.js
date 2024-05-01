@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
+const { decrypt, encrypt } = require("../middleware/encryption");
 require("dotenv").config();
 //Login
 // router.post(
@@ -176,17 +177,20 @@ router.post(
 
   async (req, res) => {
     try {
-      //Validation request (express validation)
+      const { email, phone } = req.body;
+      const decryptedEmail = decrypt(email, process.env.ENCRYPTION_KEY);
+      const decryptedPhone = decrypt(phone, process.env.ENCRYPTION_KEY);
+      console.log("Decrypted Data:", decryptedPhone);
+      console.log("Decrypted Data:", decryptedEmail);
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      //2-CHECK IF EMAIL IS EXIXT
-      //AWIT/ASYNC
+
       const query = util.promisify(conn.query).bind(conn); //transform mysql query--< promise to use(awit/async)
       const checkEmailExists = await query(
         "select * from users where email = ?",
-        [req.body.email]
+        [email]
       );
       if (checkEmailExists.length > 0) {
         return res.status(400).json({
@@ -202,10 +206,10 @@ router.post(
 
       const userData = {
         user_name: req.body.user_name,
-        email: req.body.email,
+        email: decryptedEmail,
         type: req.body.type,
         password: await bcrypt.hash(req.body.password, 10),
-        phone: req.body.phone,
+        phone: decryptedPhone,
       };
 
       //4- insert user object to DB
